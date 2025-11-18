@@ -1,87 +1,86 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:absensi_tugas16/models/batchmodelpage.dart';
 import 'package:absensi_tugas16/models/trainingmodel.dart';
+import 'package:absensi_tugas16/preference/preference_handler.dart';
 import 'package:absensi_tugas16/service/api.dart';
 import 'package:absensi_tugas16/views/loginpage.dart';
+import 'package:absensi_tugas16/widgets/login_button.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 
-class RegisterSoftYellowPage extends StatefulWidget {
-  const RegisterSoftYellowPage({super.key});
+class RegisterCuteYellow extends StatefulWidget {
+  const RegisterCuteYellow({super.key});
 
   @override
-  State<RegisterSoftYellowPage> createState() => _RegisterSoftYellowPageState();
+  State<RegisterCuteYellow> createState() => _RegisterCuteYellowState();
 }
 
-class _RegisterSoftYellowPageState extends State<RegisterSoftYellowPage>
-    with TickerProviderStateMixin {
-  final formKey = GlobalKey<FormState>();
-
-  final nameC = TextEditingController();
+class _RegisterCuteYellowState extends State<RegisterCuteYellow> {
   final emailC = TextEditingController();
   final passC = TextEditingController();
+  final nameC = TextEditingController();
 
-  String? gender;
-  int? batchId;
-  String? batchName;
-  int? trainingId;
-  String? trainingName;
+  final _formKey = GlobalKey<FormState>();
 
   bool isLoading = false;
-  bool loadingBatch = true;
-  bool loadingTraining = true;
-  bool showPassword = false;
+  bool isPassVisible = false;
 
-  List<BatchModelData> batchListApi = [];
-  List<TrainingModelData> trainingListApi = [];
+  List<TrainingModelData> trainings = [];
+  List<BatchModelData> batches = [];
 
-  late AnimationController fadeCtrl;
-  late Animation<double> fadeAnim;
+  int? selectedBatchId;
+  int? selectedTrainingId;
+  String? selectedGender;
+
+  File? pickedImage;
+  String? profileBase64;
 
   @override
   void initState() {
     super.initState();
+    loadDropdown();
+  }
 
-    fadeCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
+  Future<void> loadDropdown() async {
+    try {
+      final t = await TrainingAPI.getTrainings();
+      final b = await TrainingAPI.getTrainingBatches();
+      setState(() {
+        trainings = t;
+        batches = b;
+      });
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Gagal memuat data dropdown");
+    }
+  }
+
+  Future<void> pickImage() async {
+    final picker = ImagePicker();
+    final XFile? file = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 70,
     );
 
-    fadeAnim = CurvedAnimation(parent: fadeCtrl, curve: Curves.easeOut);
-    fadeCtrl.forward();
-
-    loadBatch();
-    loadTraining();
-  }
-
-  // ---------------- LOAD BATCH ----------------
-  Future<void> loadBatch() async {
-    try {
-      final data = await TrainingAPI.getTrainingBatches();
-      setState(() => batchListApi = data);
-    } catch (e) {
-      Fluttertoast.showToast(msg: "Gagal mengambil batch");
+    if (file != null) {
+      final bytes = await file.readAsBytes();
+      setState(() {
+        pickedImage = File(file.path);
+        profileBase64 = "data:image/jpeg;base64,${base64Encode(bytes)}";
+      });
     }
-    setState(() => loadingBatch = false);
   }
 
-  // ---------------- LOAD TRAINING ----------------
-  Future<void> loadTraining() async {
-    try {
-      final data = await TrainingAPI.getTrainings();
-      setState(() => trainingListApi = data);
-    } catch (e) {
-      Fluttertoast.showToast(msg: "Gagal mengambil training");
-    }
-    setState(() => loadingTraining = false);
-  }
-
-  // ---------------- REGISTER API ----------------
   Future<void> doRegister() async {
-    if (!formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return;
 
-    if (gender == null) return _show("Pilih jenis kelamin");
-    if (batchId == null) return _show("Pilih batch terlebih dahulu");
-    if (trainingId == null) return _show("Pilih training terlebih dahulu");
+    if (selectedGender == null ||
+        selectedBatchId == null ||
+        selectedTrainingId == null) {
+      Fluttertoast.showToast(msg: "Semua field wajib diisi!");
+      return;
+    }
 
     setState(() => isLoading = true);
 
@@ -90,55 +89,180 @@ class _RegisterSoftYellowPageState extends State<RegisterSoftYellowPage>
         email: emailC.text.trim(),
         name: nameC.text.trim(),
         password: passC.text.trim(),
-        jenisKelamin: gender!,
-        batchId: batchId!,
-        trainingId: trainingId!,
+        jenisKelamin: selectedGender!,
+        batchId: selectedBatchId!,
+        trainingId: selectedTrainingId!,
+        profilePhoto: profileBase64 ?? "",
       );
 
-      _show("Registrasi berhasil! Silakan login.");
+      if (result.data?.token != null) {
+        await PreferenceHandler.saveToken(result.data!.token!);
+      }
 
-      // AUTO REDIRECT → LOGIN PAGE
-      Future.delayed(const Duration(milliseconds: 900), () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginYellowPage()),
-        );
-      });
+      Fluttertoast.showToast(msg: "Registrasi Berhasil 🍋✨");
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginCustGlow()),
+      );
     } catch (e) {
-      _show(e.toString().replaceAll("Exception:", "").trim());
+      Fluttertoast.showToast(msg: e.toString());
     }
 
     setState(() => isLoading = false);
   }
 
-  void _show(String msg) {
-    Fluttertoast.showToast(msg: msg);
-  }
-
+  // =========================================================
+  // UI
+  // =========================================================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FadeTransition(
-        opacity: fadeAnim,
+      body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              const SizedBox(height: 40),
-              const Text(
+              const SizedBox(height: 16),
+
+              Text(
                 "Create Account 🍋",
                 style: TextStyle(
-                  fontSize: 32,
+                  fontSize: 30,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF8D6E63),
+                  color: Colors.brown.shade700,
                 ),
               ),
+              const SizedBox(height: 6),
               const Text(
-                "Daftar sekarang dan mulai absensi 🎀",
+                "Daftar sekarang dan mulai absensi ☀️",
                 style: TextStyle(color: Colors.black54),
               ),
-              const SizedBox(height: 30),
-              _cardForm(),
+
+              const SizedBox(height: 25),
+
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(26),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.amber.withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      // FOTO PROFIL
+                      GestureDetector(
+                        onTap: pickImage,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.amber.shade300,
+                                Colors.yellow.shade200,
+                              ],
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 48,
+                            backgroundColor: Colors.white,
+                            backgroundImage: pickedImage != null
+                                ? FileImage(pickedImage!)
+                                : null,
+                            child: pickedImage == null
+                                ? Icon(
+                                    Icons.camera_alt,
+                                    size: 32,
+                                    color: Colors.amber.shade700,
+                                  )
+                                : null,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 22),
+
+                      // Email
+                      textField(
+                        label: "Email",
+                        controller: emailC,
+                        icon: Icons.email_outlined,
+                        validator: (v) => v!.isEmpty ? "Isi email" : null,
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      // Password
+                      passwordField(),
+
+                      const SizedBox(height: 14),
+
+                      // Nama
+                      textField(
+                        label: "Nama Lengkap",
+                        controller: nameC,
+                        icon: Icons.person,
+                        validator: (v) =>
+                            v!.isEmpty ? "Isi nama lengkap" : null,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Gender Button
+                      buildGenderSelector(),
+
+                      const SizedBox(height: 20),
+
+                      // Dropdown Training
+                      buildDropdownTraining(),
+
+                      const SizedBox(height: 20),
+
+                      // Dropdown Batch
+                      buildDropdownBatch(),
+
+                      const SizedBox(height: 30),
+
+                      LoginButton(
+                        text: "Daftar Sekarang ☀️",
+                        isLoading: isLoading,
+                        onPressed: doRegister,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Sudah punya akun? "),
+                  TextButton(
+                    onPressed: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginCustGlow()),
+                    ),
+                    child: Text(
+                      "Masuk",
+                      style: TextStyle(
+                        color: Colors.amber.shade800,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -146,92 +270,20 @@ class _RegisterSoftYellowPageState extends State<RegisterSoftYellowPage>
     );
   }
 
-  Widget _cardForm() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.amber.withOpacity(0.25),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Form(
-        key: formKey,
-        child: Column(
-          children: [
-            _textField("Nama Lengkap", Icons.person, nameC),
-            const SizedBox(height: 16),
-
-            _emailField(),
-            const SizedBox(height: 16),
-
-            loadingBatch
-                ? const CircularProgressIndicator()
-                : _picker(
-                    "Pilih Batch",
-                    batchName,
-                    batchListApi
-                        .map(
-                          (b) => {
-                            "id": b.id.toString(),
-                            "name": "Batch ${b.batchKe}",
-                          },
-                        )
-                        .toList(),
-                    (item) {
-                      setState(() {
-                        batchId = int.parse(item["id"]!);
-                        batchName = item["name"];
-                      });
-                    },
-                  ),
-
-            const SizedBox(height: 16),
-
-            _genderSelector(),
-            const SizedBox(height: 16),
-
-            loadingTraining
-                ? const CircularProgressIndicator()
-                : _picker(
-                    "Pilih Training",
-                    trainingName,
-                    trainingListApi
-                        .map(
-                          (t) => {"id": t.id.toString(), "name": t.title ?? ""},
-                        )
-                        .toList(),
-                    (item) {
-                      setState(() {
-                        trainingId = int.parse(item["id"]!);
-                        trainingName = item["name"];
-                      });
-                    },
-                  ),
-
-            const SizedBox(height: 16),
-
-            _passwordField(),
-            const SizedBox(height: 30),
-            _registerButton(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ================= UI FORM ELEMENTS =================
-
-  Widget _textField(String label, IconData icon, TextEditingController c) {
+  // =========================================================
+  // FIELD REUSABLE
+  // =========================================================
+  Widget textField({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    bool isPass = false,
+    String? Function(String?)? validator,
+  }) {
     return TextFormField(
-      controller: c,
-      validator: (v) =>
-          v == null || v.isEmpty ? "$label tidak boleh kosong" : null,
+      controller: controller,
+      obscureText: isPass,
+      validator: validator,
       decoration: InputDecoration(
         labelText: label,
         filled: true,
@@ -245,72 +297,79 @@ class _RegisterSoftYellowPageState extends State<RegisterSoftYellowPage>
     );
   }
 
-  Widget _emailField() {
-    return TextFormField(
-      controller: emailC,
-      validator: (v) {
-        if (v == null || v.isEmpty) return "Email tidak boleh kosong";
-        if (!v.contains("@") || !v.contains("."))
-          return "Format email tidak valid";
-        return null;
-      },
-      decoration: InputDecoration(
-        labelText: "Email",
-        filled: true,
-        fillColor: Colors.yellow.shade50,
-        prefixIcon: Icon(Icons.email, color: Colors.amber.shade700),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
+  // =========================================================
+  // GENDER BUTTON
+  // =========================================================
+  Widget buildGenderSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Jenis Kelamin",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
-      ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: genderButton(
+                label: "Laki-laki",
+                icon: Icons.male,
+                active: selectedGender == "L",
+                onTap: () => setState(() => selectedGender = "L"),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: genderButton(
+                label: "Perempuan",
+                icon: Icons.female,
+                active: selectedGender == "P",
+                onTap: () => setState(() => selectedGender = "P"),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
-  Widget _picker(
-    String title,
-    String? selected,
-    List<Map<String, String>> list,
-    Function(Map<String, String>) onSelect,
-  ) {
+  Widget genderButton({
+    required String label,
+    required IconData icon,
+    required bool active,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          builder: (_) {
-            return ListView(
-              padding: const EdgeInsets.all(16),
-              children: list.map((item) {
-                return ListTile(
-                  leading: const Icon(Icons.star, color: Colors.amber),
-                  title: Text(item["name"]!),
-                  onTap: () {
-                    onSelect(item);
-                    Navigator.pop(context);
-                  },
-                );
-              }).toList(),
-            );
-          },
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.yellow.shade50,
+          color: active ? Colors.amber.shade300 : Colors.yellow.shade50,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: active ? Colors.amber : Colors.grey.shade300,
+          ),
+          boxShadow: active
+              ? [
+                  BoxShadow(
+                    color: Colors.amber.withOpacity(0.35),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [],
         ),
-        child: Row(
+        child: Column(
           children: [
-            Icon(Icons.arrow_drop_down, color: Colors.amber.shade700),
-            const SizedBox(width: 10),
+            Icon(icon, color: Colors.brown, size: 30),
+            const SizedBox(height: 4),
             Text(
-              selected ?? title,
-              style: TextStyle(
-                color: selected == null
-                    ? Colors.grey.shade600
-                    : Colors.brown.shade800,
-                fontSize: 16,
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.brown,
               ),
             ),
           ],
@@ -319,66 +378,82 @@ class _RegisterSoftYellowPageState extends State<RegisterSoftYellowPage>
     );
   }
 
-  Widget _genderSelector() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _genderOption("L", "Laki-laki"),
-        _genderOption("P", "Perempuan"),
-      ],
-    );
-  }
-
-  Widget _genderOption(String val, String title) {
-    final selected = gender == val;
-
-    return GestureDetector(
-      onTap: () => setState(() => gender = val),
-      child: Row(
-        children: [
-          Container(
-            width: 22,
-            height: 22,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: selected ? Colors.amber.shade700 : Colors.grey.shade400,
-                width: 2,
+  // =========================================================
+  // DROPDOWN TRAINING
+  // =========================================================
+  Widget buildDropdownTraining() {
+    return DropdownButtonFormField<int>(
+      decoration: cuteDropdownDecoration(),
+      value: selectedTrainingId,
+      items: trainings
+          .map(
+            (e) => DropdownMenuItem(
+              value: e.id,
+              child: Row(
+                children: [
+                  Icon(Icons.school, color: Colors.amber.shade600),
+                  const SizedBox(width: 8),
+                  Text(e.title ?? ""),
+                ],
               ),
-              color: selected ? Colors.amber.shade600 : Colors.transparent,
             ),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            title,
-            style: TextStyle(
-              color: selected ? Colors.amber.shade800 : Colors.grey.shade700,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
+          )
+          .toList(),
+      onChanged: (v) => setState(() => selectedTrainingId = v),
+      validator: (v) => v == null ? "Pilih training" : null,
     );
   }
 
-  Widget _passwordField() {
+  // =========================================================
+  // DROPDOWN BATCH
+  // =========================================================
+  Widget buildDropdownBatch() {
+    return DropdownButtonFormField<int>(
+      decoration: cuteDropdownDecoration(),
+      value: selectedBatchId,
+      items: batches
+          .map(
+            (b) => DropdownMenuItem(
+              value: b.id,
+              child: Row(
+                children: [
+                  Icon(Icons.date_range, color: Colors.orange.shade700),
+                  const SizedBox(width: 8),
+                  Text("Batch ${b.batchKe}"),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+      onChanged: (v) => setState(() => selectedBatchId = v),
+      validator: (v) => v == null ? "Pilih batch" : null,
+    );
+  }
+
+  Widget passwordField() {
     return TextFormField(
       controller: passC,
-      obscureText: !showPassword,
-      validator: (v) =>
-          v == null || v.isEmpty ? "Password tidak boleh kosong" : null,
+      obscureText: !isPassVisible,
+      validator: (v) => v!.isEmpty ? "Isi password" : null,
       decoration: InputDecoration(
         labelText: "Password",
         filled: true,
         fillColor: Colors.yellow.shade50,
         prefixIcon: Icon(Icons.lock, color: Colors.amber.shade700),
+
+        //  ICON SHOW/HIDE PASSWORD
         suffixIcon: IconButton(
+          onPressed: () {
+            setState(() {
+              isPassVisible = !isPassVisible;
+            });
+          },
           icon: Icon(
-            showPassword ? Icons.visibility : Icons.visibility_off,
+            isPassVisible ? Icons.visibility : Icons.visibility_off,
             color: Colors.amber.shade700,
           ),
-          onPressed: () => setState(() => showPassword = !showPassword),
         ),
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
@@ -387,28 +462,24 @@ class _RegisterSoftYellowPageState extends State<RegisterSoftYellowPage>
     );
   }
 
-  Widget _registerButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 54,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.amber,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-        onPressed: isLoading ? null : doRegister,
-        child: isLoading
-            ? const CircularProgressIndicator(color: Colors.white)
-            : const Text(
-                "Daftar Sekarang ☀️",
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
+  // CUTE DROPDOWN DECORATION
+
+  InputDecoration cuteDropdownDecoration() {
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.yellow.shade50,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Colors.amber.shade200),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Colors.amber.shade700, width: 2),
       ),
     );
   }

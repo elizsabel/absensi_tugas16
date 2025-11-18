@@ -1,21 +1,21 @@
 // To parse this JSON data, do
 //
-//     final rergisterModel = rergisterModelFromJson(jsonString);
+//     final registerModel = registerModelFromJson(jsonString);
 
 import 'dart:convert';
 
-RergisterModel rergisterModelFromJson(String str) =>
-    RergisterModel.fromJson(json.decode(str));
+RegisterModel registerModelFromJson(String str) =>
+    RegisterModel.fromJson(json.decode(str));
 
-String rergisterModelToJson(RergisterModel data) => json.encode(data.toJson());
+String registerModelToJson(RegisterModel data) => json.encode(data.toJson());
 
-class RergisterModel {
+class RegisterModel {
   String? message;
   Data? data;
 
-  RergisterModel({this.message, this.data});
+  RegisterModel({this.message, this.data});
 
-  factory RergisterModel.fromJson(Map<String, dynamic> json) => RergisterModel(
+  factory RegisterModel.fromJson(Map<String, dynamic> json) => RegisterModel(
     message: json["message"],
     data: json["data"] == null ? null : Data.fromJson(json["data"]),
   );
@@ -26,7 +26,7 @@ class RergisterModel {
 class Data {
   String? token;
   User? user;
-  String? profilePhotoUrl;
+  dynamic profilePhotoUrl;
 
   Data({this.token, this.user, this.profilePhotoUrl});
 
@@ -46,12 +46,12 @@ class Data {
 class User {
   String? name;
   String? email;
-  int? batchId;
-  int? trainingId;
+  String? batchId;
+  String? trainingId;
   String? jenisKelamin;
-  String? profilePhoto;
-  DateTime? updatedAt;
-  DateTime? createdAt;
+  dynamic profilePhoto;
+  String? updatedAt;
+  String? createdAt;
   int? id;
   Batch? batch;
   Training? training;
@@ -77,12 +77,8 @@ class User {
     trainingId: json["training_id"],
     jenisKelamin: json["jenis_kelamin"],
     profilePhoto: json["profile_photo"],
-    updatedAt: json["updated_at"] == null
-        ? null
-        : DateTime.parse(json["updated_at"]),
-    createdAt: json["created_at"] == null
-        ? null
-        : DateTime.parse(json["created_at"]),
+    updatedAt: json["updated_at"],
+    createdAt: json["created_at"],
     id: json["id"],
     batch: json["batch"] == null ? null : Batch.fromJson(json["batch"]),
     training: json["training"] == null
@@ -97,8 +93,8 @@ class User {
     "training_id": trainingId,
     "jenis_kelamin": jenisKelamin,
     "profile_photo": profilePhoto,
-    "updated_at": updatedAt?.toIso8601String(),
-    "created_at": createdAt?.toIso8601String(),
+    "updated_at": updatedAt,
+    "created_at": createdAt,
     "id": id,
     "batch": batch?.toJson(),
     "training": training?.toJson(),
@@ -110,8 +106,8 @@ class Batch {
   String? batchKe;
   DateTime? startDate;
   DateTime? endDate;
-  DateTime? createdAt;
-  DateTime? updatedAt;
+  String? createdAt;
+  String? updatedAt;
 
   Batch({
     this.id,
@@ -129,12 +125,8 @@ class Batch {
         ? null
         : DateTime.parse(json["start_date"]),
     endDate: json["end_date"] == null ? null : DateTime.parse(json["end_date"]),
-    createdAt: json["created_at"] == null
-        ? null
-        : DateTime.parse(json["created_at"]),
-    updatedAt: json["updated_at"] == null
-        ? null
-        : DateTime.parse(json["updated_at"]),
+    createdAt: json["created_at"],
+    updatedAt: json["updated_at"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -144,8 +136,8 @@ class Batch {
         "${startDate!.year.toString().padLeft(4, '0')}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}",
     "end_date":
         "${endDate!.year.toString().padLeft(4, '0')}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}",
-    "created_at": createdAt?.toIso8601String(),
-    "updated_at": updatedAt?.toIso8601String(),
+    "created_at": createdAt,
+    "updated_at": updatedAt,
   };
 }
 
@@ -156,8 +148,8 @@ class Training {
   dynamic participantCount;
   dynamic standard;
   dynamic duration;
-  DateTime? createdAt;
-  DateTime? updatedAt;
+  String? createdAt;
+  String? updatedAt;
 
   Training({
     this.id,
@@ -177,12 +169,8 @@ class Training {
     participantCount: json["participant_count"],
     standard: json["standard"],
     duration: json["duration"],
-    createdAt: json["created_at"] == null
-        ? null
-        : DateTime.parse(json["created_at"]),
-    updatedAt: json["updated_at"] == null
-        ? null
-        : DateTime.parse(json["updated_at"]),
+    createdAt: json["created_at"],
+    updatedAt: json["updated_at"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -192,7 +180,7 @@ class Training {
     "participant_count": participantCount,
     "standard": standard,
     "duration": duration,
-    "created_at": createdAt?.toIso8601String(),
-    "updated_at": updatedAt?.toIso8601String(),
+    "created_at": createdAt,
+    "updated_at": updatedAt,
   };
 }

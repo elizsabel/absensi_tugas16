@@ -8,14 +8,14 @@ import 'package:absensi_tugas16/models/trainingmodel.dart';
 import 'package:http/http.dart' as http;
 
 class AuthAPI {
-  // =====================================================
-  //                   REGISTER USER
-  // =====================================================
-  static Future<RergisterModel> registerUser({
+  // ============================================================
+  // REGISTER
+  // ============================================================
+  static Future<RegisterModel> registerUser({
     required String email,
     required String name,
     required String password,
-    required String jenisKelamin,
+    required String jenisKelamin, // 'L' / 'P'
     required int batchId,
     required int trainingId,
     String profilePhoto = "",
@@ -31,29 +31,25 @@ class AuthAPI {
         "password": password,
         "jenis_kelamin": jenisKelamin,
         "profile_photo": profilePhoto,
-        "batch_id": batchId,       // <- INT (benar)
-        "training_id": trainingId, // <- INT (benar)
+        "batch_id": batchId.toString(),
+        "training_id": trainingId.toString(),
       },
     );
 
-    log("REGISTER STATUS: ${response.statusCode}");
-    log("REGISTER BODY: ${response.body}");
+    log(response.body);
+    log('REGISTER status: ${response.statusCode}');
 
-    final body = json.decode(response.body);
-
-    // SUCCESS
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return RergisterModel.fromJson(body);
+      return RegisterModel.fromJson(json.decode(response.body));
+    } else {
+      final error = json.decode(response.body);
+      throw Exception(error["message"] ?? "Terjadi kesalahan");
     }
-
-    // ERROR (422, 500, etc)
-    throw Exception(body["message"] ?? "Terjadi kesalahan saat registrasi");
   }
 
-
-  // =====================================================
-  //                   LOGIN USER
-  // =====================================================
+  // ============================================================
+  // LOGIN
+  // ============================================================
   static Future<LoginModel> loginUser({
     required String email,
     required String password,
@@ -63,77 +59,57 @@ class AuthAPI {
     final response = await http.post(
       url,
       headers: {"Accept": "application/json"},
-      body: {
-        "email": email,
-        "password": password,
-      },
+      body: {"email": email, "password": password},
     );
 
-    log("LOGIN STATUS: ${response.statusCode}");
-    log("LOGIN BODY: ${response.body}");
+    log("LOGIN: ${response.body}");
 
-    final body = json.decode(response.body);
-
-    // SUCCESS
     if (response.statusCode == 200) {
-      return LoginModel.fromJson(body);
+      return LoginModel.fromJson(json.decode(response.body));
+    } else {
+      final error = json.decode(response.body);
+      throw Exception(error["message"]);
     }
-
-    // WRONG CREDENTIALS
-    if (response.statusCode == 401 || response.statusCode == 422) {
-      throw Exception(body["message"] ?? "Email atau password salah");
-    }
-
-    // OTHER ERRORS
-    throw Exception("Login gagal, silakan coba lagi.");
   }
+
 }
 
-
-// =====================================================
-//                     TRAINING API
-// =====================================================
 class TrainingAPI {
-  // GET TRAINING
   static Future<List<TrainingModelData>> getTrainings() async {
     final url = Uri.parse(Endpoint.trainings);
-
     final response = await http.get(
       url,
       headers: {"Accept": "application/json"},
     );
 
-    log("TRAINING STATUS: ${response.statusCode}");
-    log("TRAINING BODY: ${response.body}");
+    log('getTrainings: ${response.statusCode}');
+    log(response.body);
 
     if (response.statusCode == 200) {
       final jsonBody = json.decode(response.body);
-      final List data = jsonBody["data"];
+      final List data = jsonBody['data'] as List;
       return data.map((e) => TrainingModelData.fromJson(e)).toList();
+    } else {
+      throw Exception("Gagal mengambil data pelatihan");
     }
-
-    throw Exception("Gagal mengambil data training");
   }
 
-
-  // GET BATCH
   static Future<List<BatchModelData>> getTrainingBatches() async {
     final url = Uri.parse(Endpoint.trainingBatches);
-
     final response = await http.get(
       url,
       headers: {"Accept": "application/json"},
     );
 
-    log("BATCH STATUS: ${response.statusCode}");
-    log("BATCH BODY: ${response.body}");
+    log('getTrainingBatches: ${response.statusCode}');
+    log(response.body);
 
     if (response.statusCode == 200) {
       final jsonBody = json.decode(response.body);
-      final List data = jsonBody["data"];
+      final List data = jsonBody['data'] as List;
       return data.map((e) => BatchModelData.fromJson(e)).toList();
+    } else {
+      throw Exception("Gagal mengambil data batch pelatihan");
     }
-
-    throw Exception("Gagal mengambil data batch");
   }
 }
