@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PreferenceHandler {
   static const String isLogin = "isLogin";
   static const String isToken = "isToken";
-  static const String isName = "isName"; // <-- tambahkan ini
+  static const String isName = "isName";
 
   // ===========================
   // SAVE DATA
@@ -20,7 +20,6 @@ class PreferenceHandler {
   }
 
   static Future<void> saveName(String value) async {
-    // <-- tambahkan
     final prefs = await SharedPreferences.getInstance();
     prefs.setString(isName, value);
   }
@@ -40,13 +39,12 @@ class PreferenceHandler {
   }
 
   static Future<String?> getName() async {
-    // <-- tambahkan
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(isName);
   }
 
   // ===========================
-  // REMOVE DATA
+  // REMOVE DATA (individual)
   // ===========================
 
   static Future<void> removeLogin() async {
@@ -60,8 +58,30 @@ class PreferenceHandler {
   }
 
   static Future<void> removeName() async {
-    // <-- tambahkan
     final prefs = await SharedPreferences.getInstance();
     prefs.remove(isName);
+  }
+
+  // ===========================
+  // CLEAR ALL (LOGOUT)
+  // ===========================
+  static Future<void> clearAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // <-- Hapus seluruh data
+  }
+
+  // DARK MODE
+  static const String themeMode = "themeMode"; // "light" / "dark"
+
+  // simpan
+  static Future<void> saveTheme(String mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(themeMode, mode);
+  }
+
+  // ambil
+  static Future<String?> getTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(themeMode);
   }
 }

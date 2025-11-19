@@ -1,3 +1,5 @@
+import 'package:absensi_tugas16/preference/preference_handler.dart';
+import 'package:absensi_tugas16/views/loginpage.dart';
 import 'package:absensi_tugas16/views/registpage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -10,6 +12,9 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+  
+
+  
 
   // This widget is the root of your application.
   @override

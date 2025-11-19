@@ -1,7 +1,7 @@
+import 'package:absensi_tugas16/views/attendancepage.dart';
+import 'package:flutter/material.dart';
 import 'package:absensi_tugas16/views/dashboard.dart';
 import 'package:absensi_tugas16/views/profilpage.dart';
-import 'package:absensi_tugas16/views/riwayatpage.dart';
-import 'package:flutter/material.dart';
 
 class MainBottomNav extends StatefulWidget {
   const MainBottomNav({super.key});
@@ -13,43 +13,95 @@ class MainBottomNav extends StatefulWidget {
 class _MainBottomNavState extends State<MainBottomNav> {
   int _currentIndex = 0;
 
-  // ⬇️ PENTING: isi dengan INSTANCE widget (pakai ())
-  final List<Widget> _pages = const [
-    DashboardYellow(),
-    RiwayatPage(),
-    ProfilePage(),
+  final List<Widget> _pages = [
+    DashboardYellowFinal(),
+    AttendancePage(),
+    ProfileFinalPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ⬇️ JANGAN pakai _pages[_currentIndex]() cukup seperti ini
+      extendBody: true,
       body: _pages[_currentIndex],
 
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        selectedItemColor: Colors.orange.shade700,
-        unselectedItemColor: Colors.brown.shade300,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_rounded),
-            label: "Dashboard",
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 22, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.orange.withOpacity(0.25),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history_rounded),
-            label: "Riwayat",
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(28),
+            child: BottomNavigationBar(
+              backgroundColor: Colors.white,
+              currentIndex: _currentIndex,
+              onTap: (index) => setState(() => _currentIndex = index),
+              type: BottomNavigationBarType.fixed,
+              selectedItemColor: Colors.orange.shade700,
+              unselectedItemColor: Colors.grey.shade400,
+              iconSize: 28,
+              elevation: 0,
+              selectedFontSize: 12,
+              unselectedFontSize: 11,
+
+              items: [
+                BottomNavigationBarItem(
+                  icon: _navIcon(
+                    Icons.dashboard_rounded,
+                    selected: _currentIndex == 0,
+                    color: Colors.orange,
+                  ),
+                  label: "Dashboard",
+                ),
+                BottomNavigationBarItem(
+                  icon: _navIcon(
+                    Icons.access_time_filled_rounded,
+                    selected: _currentIndex == 1,
+                    color: Colors.blue,
+                  ),
+                  label: "Absensi",
+                ),
+                BottomNavigationBarItem(
+                  icon: _navIcon(
+                    Icons.person_rounded,
+                    selected: _currentIndex == 2,
+                    color: Colors.green,
+                  ),
+                  label: "Profil",
+                ),
+              ],
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_rounded),
-            label: "Profil",
-          ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget _navIcon(
+    IconData icon, {
+    required bool selected,
+    required Color color,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      padding: EdgeInsets.all(selected ? 10 : 6),
+      decoration: BoxDecoration(
+        color: selected ? color.withOpacity(0.15) : Colors.transparent,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        icon,
+        color: selected ? color : Colors.grey.shade400,
+        size: selected ? 30 : 26,
       ),
     );
   }

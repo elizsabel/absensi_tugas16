@@ -6,7 +6,10 @@ class Endpoint {
   static const login = '$baseUrl/api/login';
   static const checkIn = '$baseUrl/api/absen/check-in';
   static const checkOut = '$baseUrl/api/absen/check-out';
-  static const izin = '$baseUrl/absen-izin';
-  static const statistik = '$baseUrl/absen-statistik';
-  static const history = '$baseUrl/history-absen';
+  static const izin = '$baseUrl/api/izin';
+  static const statistik = '$baseUrl/api/absen/stats';
+  static const history = '$baseUrl/api/absen/history';
+  static const profile = '$baseUrl/api/profile';
+  static const updateProfile = '$baseUrl/api/profile';
+  static const deleteAbsen = '$baseUrl/api/absen';
 }

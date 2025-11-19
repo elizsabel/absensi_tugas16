@@ -160,7 +160,7 @@ class _LoginCustGlowState extends State<LoginCustGlow> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const MainBottomNav()),
+          MaterialPageRoute(builder: (_) => MainBottomNav()),
         );
       } catch (e) {
         setState(() => isLoading = false);
