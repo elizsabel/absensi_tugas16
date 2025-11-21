@@ -1,3 +1,7 @@
+// ======================================================
+// PROFILE PAGE – SOFT PASTEL LEMON 🍋✨
+// ======================================================
+
 import 'package:absensi_tugas16/models/profil_model.dart';
 import 'package:absensi_tugas16/preference/preference_handler.dart';
 import 'package:absensi_tugas16/service/absensiapi.dart';
@@ -27,9 +31,7 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
     loadProfile();
   }
 
-  // ============================================
   // LOAD PROFILE
-  // ============================================
   Future<void> loadProfile() async {
     try {
       final res = await AbsensiAPI.getProfile();
@@ -38,22 +40,16 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
 
       nameC.text = user?.name ?? "";
       emailC.text = user?.email ?? "";
-    } catch (e) {
-      debugPrint("Error load profile: $e");
-    }
+    } catch (e) {}
 
     setState(() => loading = false);
   }
 
-  // ============================================
   // LOGOUT
-  // ============================================
   Future<void> doLogout() async {
     await PreferenceHandler.removeToken();
     await PreferenceHandler.removeLogin();
     await PreferenceHandler.removeName();
-
-    if (!mounted) return;
 
     Fluttertoast.showToast(msg: "Logout berhasil");
 
@@ -64,50 +60,7 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
     );
   }
 
-  // ============================================
-  // DELETE ABSEN
-  // ============================================
-  // Future<void> deleteAllAbsen() async {
-  //   if (user?.id == null) return;
-  //   try {
-  //     await AbsensiAPI.deleteAbsen(user!.id!);
-  //     Fluttertoast.showToast(msg: "Semua absen berhasil dihapus");
-  //   } catch (e) {
-  //     Fluttertoast.showToast(msg: "Gagal menghapus absen");
-  //   }
-  // }
-
-  // void confirmDeleteAbsen() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (c) {
-  //       return AlertDialog(
-  //         title: const Text("Hapus Semua Absen?"),
-  //         content: const Text(
-  //           "Data absensi akan hilang permanen dan tidak bisa dikembalikan.",
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             child: const Text("Batal"),
-  //             onPressed: () => Navigator.pop(c),
-  //           ),
-  //           ElevatedButton(
-  //             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-  //             child: const Text("Hapus"),
-  //             onPressed: () async {
-  //               Navigator.pop(c);
-  //               await deleteAllAbsen();
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-  // ============================================
-  // EDIT PROFILE (NAMA SAJA)
-  // ============================================
+  // ================= EDIT PROFILE SHEET =================
   void showEditSheet() {
     showModalBottomSheet(
       context: context,
@@ -150,7 +103,7 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
               const SizedBox(height: 16),
 
               _label("Email"),
-              _input(emailC, enabled: false), // EMAIL TERKUNCI
+              _input(emailC, enabled: false),
 
               const SizedBox(height: 22),
 
@@ -159,7 +112,7 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
                 height: 52,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange.shade600,
+                    backgroundColor: const Color(0xFFFFB84C),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -169,7 +122,6 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
 
                     try {
                       await AbsensiAPI.editProfile(name: nameC.text.trim());
-
                       Fluttertoast.showToast(msg: "Profil berhasil diperbarui");
                       loadProfile();
                     } catch (e) {
@@ -191,7 +143,7 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
       text,
       style: TextStyle(
         fontWeight: FontWeight.w600,
-        color: Colors.brown.shade700,
+        color: Colors.brown.shade600,
       ),
     );
   }
@@ -201,8 +153,8 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: enabled ? Colors.grey.shade100 : Colors.grey.shade300,
-        border: Border.all(color: Colors.grey.shade400),
+        color: enabled ? Colors.white : Colors.grey.shade200,
+        border: Border.all(color: Colors.grey.shade300),
       ),
       child: TextField(
         controller: c,
@@ -213,20 +165,18 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
     );
   }
 
-  // ============================================
-  // UI MAIN
-  // ============================================
+  // ================= UI =================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF9E5),
+      backgroundColor: const Color(0xFFFFF9E9),
       appBar: AppBar(
-        backgroundColor: Colors.orange.shade400,
-        centerTitle: true,
+        backgroundColor: const Color(0xFFFFD88A), // LEMON SOFT
         elevation: 0,
+        centerTitle: true,
         title: const Text(
           "Profil Saya 🍋",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.brown, fontWeight: FontWeight.bold),
         ),
       ),
       body: loading
@@ -237,18 +187,19 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
 
   Widget _buildBody() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       child: Column(
         children: [
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
 
+          // ================= AVATAR =================
           CircleAvatar(
-            radius: 50,
-            backgroundColor: Colors.orange.shade300,
+            radius: 52,
+            backgroundColor: const Color(0xFFFFDFAE), // LEMON PASTEL
             backgroundImage: (user?.profilePhoto != null)
                 ? NetworkImage(user!.profilePhoto!)
                 : null,
-            child: (user?.profilePhoto == null)
+            child: user?.profilePhoto == null
                 ? Text(
                     (user?.name?[0] ?? "?").toUpperCase(),
                     style: const TextStyle(
@@ -271,32 +222,23 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
             ),
           ),
 
-          const SizedBox(height: 4),
-
           Text(
             user?.email ?? "-",
             style: TextStyle(fontSize: 15, color: Colors.brown.shade600),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
 
           _infoCard(),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 26),
 
-          _mainButton("Edit Profil", Colors.orange.shade500, showEditSheet),
-          const SizedBox(height: 10),
+          _mainButton("Edit Profil", const Color(0xFFFFB84C), showEditSheet),
+          const SizedBox(height: 12),
 
-          // _mainButton(
-          //   "Hapus Semua Absen",
-          //   Colors.red.shade300,
-          //   confirmDeleteAbsen,
-          // ),
-          const SizedBox(height: 10),
+          _mainButton("Keluar Akun", Colors.red.shade400, doLogout),
 
-          _mainButton("Keluar Akun", Colors.red.shade500, doLogout),
-
-          const SizedBox(height: 100),
+          const SizedBox(height: 90),
         ],
       ),
     );
@@ -314,26 +256,31 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        child: Text(title, style: const TextStyle(color: Colors.white)),
+        child: Text(
+          title,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
       ),
     );
   }
 
+  // ================= INFO CARD =================
   Widget _infoCard() {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
         gradient: LinearGradient(
-          colors: [Colors.white, Colors.orange.shade50],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          colors: [
+            Colors.white,
+            const Color(0xFFFFF4D6), // soft lemon
+          ],
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.orange.withOpacity(0.18),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
+            color: Colors.orange.withOpacity(0.12),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -359,14 +306,14 @@ class _ProfileFinalPageState extends State<ProfileFinalPage> {
             label,
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: Colors.brown.shade800,
+              color: Colors.brown.shade700,
             ),
           ),
           Text(
             value?.toString() ?? "-",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Colors.brown.shade700,
+              color: Colors.brown.shade600,
             ),
           ),
         ],

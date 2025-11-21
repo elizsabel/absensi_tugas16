@@ -85,7 +85,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
             // ================= CHECK IN =================
             _menuButton(
-              label: "Check In",
+              label: "Masuk",
               subtitle: "Absen saat mulai bekerja",
               icon: Icons.login_rounded,
               colors: const [Color(0xFFFFD88A), Color(0xFFFFE9B6)],
@@ -103,7 +103,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
             // ================= CHECK OUT =================
             _menuButton(
-              label: "Check Out",
+              label: "Pulang",
               subtitle: "Absen saat selesai bekerja",
               icon: Icons.logout_rounded,
               colors: const [Color(0xFFFFB9A8), Color(0xFFFFD2C8)],

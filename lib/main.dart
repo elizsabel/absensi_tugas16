@@ -1,6 +1,7 @@
 import 'package:absensi_tugas16/preference/preference_handler.dart';
 import 'package:absensi_tugas16/views/loginpage.dart';
 import 'package:absensi_tugas16/views/registpage.dart';
+import 'package:absensi_tugas16/views/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -12,15 +13,14 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  
-
-  
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Trackliz',
+      debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: RegisterCuteYellow(),
+      home: SplashCuteYellow(),
     );
   }
 }

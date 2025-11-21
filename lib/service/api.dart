@@ -71,7 +71,6 @@ class AuthAPI {
       throw Exception(error["message"]);
     }
   }
-
 }
 
 class TrainingAPI {
@@ -95,7 +94,7 @@ class TrainingAPI {
   }
 
   static Future<List<BatchModelData>> getTrainingBatches() async {
-    final url = Uri.parse(Endpoint.trainings);
+    final url = Uri.parse(Endpoint.trainingBatches);
     final response = await http.get(
       url,
       headers: {"Accept": "application/json"},

@@ -383,22 +383,29 @@ class _RegisterCuteYellowState extends State<RegisterCuteYellow> {
   // =========================================================
   Widget buildDropdownTraining() {
     return DropdownButtonFormField<int>(
-      decoration: cuteDropdownDecoration(),
+      decoration: cuteDropdownDecoration().copyWith(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      ),
+      isExpanded: true,
       value: selectedTrainingId,
-      items: trainings
-          .map(
-            (e) => DropdownMenuItem(
-              value: e.id,
-              child: Row(
-                children: [
-                  Icon(Icons.school, color: Colors.amber.shade600),
-                  const SizedBox(width: 8),
-                  Text(e.title ?? ""),
-                ],
+      items: trainings.map((e) {
+        return DropdownMenuItem(
+          value: e.id,
+          child: Row(
+            children: [
+              Icon(Icons.school, size: 18, color: Colors.amber.shade600),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  e.title ?? "",
+                  overflow: TextOverflow.ellipsis, // ⬅ cegah text panjang
+                  maxLines: 1,
+                ),
               ),
-            ),
-          )
-          .toList(),
+            ],
+          ),
+        );
+      }).toList(),
       onChanged: (v) => setState(() => selectedTrainingId = v),
       validator: (v) => v == null ? "Pilih training" : null,
     );
